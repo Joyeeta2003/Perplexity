@@ -1,0 +1,47 @@
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
+	{
+		username: {
+			type: String,
+			required: [true, "Username is required"],
+			trim: true,
+			minLength: [3, "Username must be at least 3 characters"],
+			maxLength: [30, "Username cannot exceed 30 characters"],
+			unique: true,
+		},
+		email: {
+			type: String,
+			required: [true, "Email is required"],
+			trim: true,
+			lowercase: true,
+			unique: true,
+			match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"],
+		},
+		password: {
+			type: String,
+			required: [true, "Password is required"],
+			minLength: [8, "Password must be at least 8 characters"],
+			select: false,
+		},
+		verified: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	{ timestamps: true },
+);
+
+userSchema.pre('save',async function (next) {
+	if(!this.isModified('password')) return next();
+	this.password = await bcrypt.hash(this.password, 10);
+	next();
+});
+
+userSchema.methods.comparePassword = function (candidatePassword){
+	return bcrypt.compare(candidatePassword, this.password)
+}
+
+const userModel = mongoose.model("User", userSchema);
+
+export default userModel;
