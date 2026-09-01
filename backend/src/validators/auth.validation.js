@@ -27,4 +27,16 @@ export const registerValidation = [
         Validate
 ];
 
+export const loginValidator = [
+	body("email")
+	.trim()
+	.notEmpty().withMessage("Email is required")
+	.isEmail().withMessage("Please provide a valid email"),
+
+	body("password")
+	.notEmpty().withMessage("password is required"),
+
+	Validate
+]
+
 

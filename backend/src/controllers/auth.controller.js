@@ -79,3 +79,7 @@ export async function verifyEmail(req, res) {
 
     res.send(html);
 }
+
+export async function login(req, res) {
+    
+}
