@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { register, verifyEmail,login } from "../controllers/auth.controller.js";
+import { register, verifyEmail,login, getMe } from "../controllers/auth.controller.js";
 import {
 	registerValidation,
 	loginValidator
 } from "../validators/auth.validation.js";
+
+import { authUser } from "../middlewares/auth.middleware.js";
 
 const authRouter = Router();
 /**
@@ -23,6 +25,13 @@ authRouter.post("/register", registerValidation, register);
  */
 authRouter.post("/login", loginValidator, login)
 
+/**
+ * @route GET /api/auth/get-me
+ * @desc get current login user details
+ * @access private
+ */
+
+authRouter.get('/get-me', authUser, getMe)
 /**
  * @route GET /api/auth/verify-email
  * @desc Verify user's email address
