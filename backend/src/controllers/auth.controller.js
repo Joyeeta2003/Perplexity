@@ -1,6 +1,7 @@
 import userModel from "../models/user.model.js";
 import jwt from 'jsonwebtoken';
 import { sendEmail } from "../services/mail.service.js";
+import cookieParser from "cookie-parser";
 
 export async function register(req, res) {
     const { username, email, password } = req.body;
@@ -81,5 +82,49 @@ export async function verifyEmail(req, res) {
 }
 
 export async function login(req, res) {
-    
+    const {email, password} = req.body;
+    const user = await userModel.findOne({email}).select("+password");
+
+    if(!user){
+        return res.status(400).json({
+            message:"Invalid email or password",
+            success:true,
+            err:"user not found"
+        })
+    }
+
+    const isPasswordMatch = await user.comparePassword(password);
+
+    if(!isPasswordMatch){
+        return res.status(400).json({
+            message:"Invalid email or password",
+            success:false,
+            err:"Incorrect password"
+        })
+    }
+
+    if(!user.verified){
+        return res.status(400).json({
+            message:"Please verify your email address before logging in",
+            success:false,
+            err:"Email not verified"
+        })
+    }
+
+    const token = jwt.sign({
+        id:user._id,
+        username:user.username,
+    },process.env.JWT_SECRET,{expiresIn:'7d'})
+
+    res.cookie("token", token)
+
+    res.status(200).json({
+        message:"Login successfully",
+        success:true,
+        user:{
+            id:user._id,
+            username:user.username,
+            email:user.email
+        }
+    })
 }
