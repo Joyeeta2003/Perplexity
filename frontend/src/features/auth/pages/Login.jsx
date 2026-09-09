@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router";
 
 function Login() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
+
+	const user = useSelector((state) => state.auth.user)
+	const loading = useSelector((state) => state.auth.loading)
 
 	const { handleLogin } = useAuth()
 	const navigate = useNavigate()
@@ -19,6 +24,10 @@ function Login() {
 
 		await handleLogin(payload)
 		navigate("/")
+	}
+
+	if(!loading && user){
+		return <Navigate to='/' replace />
 	}
 
 	return (
