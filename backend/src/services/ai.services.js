@@ -1,5 +1,5 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import {HumanMessage, SystemMessage} from "langchain";
+import {HumanMessage, SystemMessage,AIMessage} from "langchain";
 import {ChatMistralAI} from '@langchain/mistralai'
 
 
@@ -14,9 +14,13 @@ const MistralModel = new ChatMistralAI({
 })
 
 export async function generateRespose(message) {
-  const response = await GeminiModel.invoke([
-    new HumanMessage(message)
-  ])
+  const response = await GeminiModel.invoke(message.map (msg=>{
+    if(msg.role == 'user'){
+      return new HumanMessage(msg.content)
+    }else if(msg.role == 'AI'){
+      return new AIMessage(msg.content)
+    }
+  }))
   return response.text
 }
 
